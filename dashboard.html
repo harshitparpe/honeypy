@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HONEYPY // live console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0f0d;
+    --panel: #101613;
+    --panel-line: #1d2622;
+    --text: #d7ddd9;
+    --text-dim: #6c7a73;
+    --amber: #e8a33d;
+    --teal: #4fd1a5;
+    --red: #e2574c;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  body { padding: 28px clamp(16px, 4vw, 48px) 60px; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+    border-bottom: 1px solid var(--panel-line);
+    padding-bottom: 18px; margin-bottom: 24px;
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand h1 {
+    font-size: 20px; letter-spacing: 0.06em; margin: 0;
+    font-weight: 700; color: var(--text);
+  }
+  .brand span { color: var(--text-dim); font-size: 13px; }
+  .status {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text-dim);
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--teal);
+    box-shadow: 0 0 0 0 rgba(79,209,165,0.6);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(79,209,165,0.55); }
+    70% { box-shadow: 0 0 0 6px rgba(79,209,165,0); }
+    100% { box-shadow: 0 0 0 0 rgba(79,209,165,0); }
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px; margin-bottom: 24px;
+  }
+  .stat {
+    background: var(--panel);
+    border: 1px solid var(--panel-line);
+    border-radius: 4px;
+    padding: 16px 18px;
+  }
+  .stat .num { font-size: 28px; font-weight: 700; line-height: 1; }
+  .stat .label {
+    margin-top: 8px; font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text-dim);
+  }
+  .stat.amber .num { color: var(--amber); }
+  .stat.teal .num { color: var(--teal); }
+  .stat.red .num { color: var(--red); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1fr;
+    gap: 16px; margin-bottom: 16px;
+  }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-line);
+    border-radius: 4px;
+    padding: 16px 18px 18px;
+  }
+  .panel h2 {
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-dim); margin: 0 0 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .panel h2::before { content: ''; width: 10px; height: 1px; background: var(--panel-line); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  td { padding: 6px 0; border-bottom: 1px solid var(--panel-line); }
+  td.num { text-align: right; color: var(--amber); font-weight: 600; }
+  td.empty { color: var(--text-dim); text-align: center; padding: 18px 0; }
+  tr:last-child td { border-bottom: none; }
+
+  .chart-wrap { height: 220px; }
+
+  .tail {
+    background: #070b09;
+    border: 1px solid var(--panel-line);
+    border-radius: 4px;
+    padding: 14px 16px;
+    height: 260px;
+    overflow-y: auto;
+    font-size: 12.5px;
+    line-height: 1.7;
+  }
+  .tail .line { white-space: pre-wrap; word-break: break-all; color: #9fb0a8; }
+  .tail .line.dim { color: var(--text-dim); }
+  .tail .line::before { content: '> '; color: var(--teal); }
+  .cursor {
+    display: inline-block; width: 7px; height: 13px;
+    background: var(--teal); margin-left: 2px;
+    animation: blink 1s steps(1) infinite; vertical-align: middle;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  footer {
+    margin-top: 20px; font-size: 11px; color: var(--text-dim);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <h1>HONEYPY</h1>
+      <span>// live threat console</span>
+    </div>
+    <div class="status">
+      <span class="dot"></span>
+      generated 2026-07-19 13:39:28 &nbsp;·&nbsp; refreshes every 30s
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat teal">
+      <div class="num">7</div>
+      <div class="label">Total attempts</div>
+    </div>
+    <div class="stat">
+      <div class="num">1</div>
+      <div class="label">Unique source IPs</div>
+    </div>
+    <div class="stat">
+      <div class="num">3</div>
+      <div class="label">SSH attempts</div>
+    </div>
+    <div class="stat">
+      <div class="num">4</div>
+      <div class="label">HTTP attempts</div>
+    </div>
+    <div class="stat amber">
+      <div class="num">2</div>
+      <div class="label">Commands run</div>
+    </div>
+    <div class="stat red">
+      <div class="num">0</div>
+      <div class="label">Canary file reads</div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-bottom:16px;">
+    <h2>Attempts over time</h2>
+    <div class="chart-wrap"><canvas id="timeline"></canvas></div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>Top source IPs</h2>
+      <table><tbody><tr><td>127.0.0.1</td><td class="num">7</td></tr></tbody></table>
+    </div>
+    <div class="panel">
+      <h2>Top usernames</h2>
+      <table><tbody><tr><td>admin</td><td class="num">5</td></tr><tr><td>root</td><td class="num">1</td></tr><tr><td>johndoe</td><td class="num">1</td></tr></tbody></table>
+    </div>
+    <div class="panel">
+      <h2>Top passwords</h2>
+      <table><tbody><tr><td>admin</td><td class="num">2</td></tr><tr><td>lol</td><td class="num">1</td></tr><tr><td>amirjohnson</td><td class="num">1</td></tr><tr><td>password123</td><td class="num">1</td></tr><tr><td>pass</td><td class="num">1</td></tr><tr><td>password</td><td class="num">1</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>Top credential pairs</h2>
+      <table><tbody><tr><td>admin:admin</td><td class="num">2</td></tr><tr><td>root:lol</td><td class="num">1</td></tr><tr><td>johndoe:amirjohnson</td><td class="num">1</td></tr><tr><td>admin:password123</td><td class="num">1</td></tr><tr><td>admin:pass</td><td class="num">1</td></tr><tr><td>admin:password</td><td class="num">1</td></tr></tbody></table>
+    </div>
+    <div class="panel" style="grid-column: span 2;">
+      <h2>Commands executed in fake shell</h2>
+      <table><tbody><tr><td>ls</td><td class="num">1</td></tr><tr><td>whoami</td><td class="num">1</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Live log tail</h2>
+    <div class="tail" id="tail">
+      <div class="line">2026-07-19 13:26:54,107 SSH login attempt from 127.0.0.1 with username: root and password: lol</div>
+<div class="line">2026-07-19 13:27:10,479 SSH login attempt from 127.0.0.1 with username: admin and password: admin</div>
+<div class="line">2026-07-19 13:27:30,157 SSH login attempt from 127.0.0.1 with username: johndoe and password: amirjohnson</div>
+<div class="line">2026-07-19 13:26:54,116 127.0.0.1 - root:lol</div>
+<div class="line">2026-07-19 13:26:57,009 Command b&#x27;ls&#x27; executed by 127.0.0.1</div>
+<div class="line">2026-07-19 13:27:10,480 127.0.0.1 - admin:admin</div>
+<div class="line">2026-07-19 13:27:15,304 Command b&#x27;whoami&#x27; executed by 127.0.0.1</div>
+<div class="line">2026-07-19 13:27:30,157 127.0.0.1 - johndoe:amirjohnson</div>
+<div class="line">2026-07-18 22:45:47,200 Login attempt from 127.0.0.1</div>
+<div class="line">username: admin and password: password123</div>
+<div class="line">2026-07-19 13:34:06,035 Login attempt from 127.0.0.1</div>
+<div class="line">username: admin and password: pass</div>
+<div class="line">2026-07-19 13:34:11,986 Login attempt from 127.0.0.1</div>
+<div class="line">username: admin and password: admin</div>
+<div class="line">2026-07-19 13:34:20,038 Login attempt from 127.0.0.1</div>
+<div class="line">username: admin and password: password</div>
+      <span class="cursor"></span>
+    </div>
+  </div>
+
+  <footer>reading from: C:\Users\hprsh\honeypy</footer>
+
+<script>
+  // Auto-refresh the page so it picks up whatever update_dashboard.py
+  // last wrote to disk. Run the script on a loop or via cron on the VPS.
+  setTimeout(() => location.reload(), 30000);
+
+  // Keep the log tail scrolled to the bottom on load
+  const tail = document.getElementById('tail');
+  tail.scrollTop = tail.scrollHeight;
+
+  const ctx = document.getElementById('timeline');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['07-19 13h'],
+      datasets: [{
+        label: 'Attempts',
+        data: [3],
+        borderColor: '#4fd1a5',
+        backgroundColor: 'rgba(79,209,165,0.12)',
+        borderWidth: 2,
+        pointRadius: 2,
+        pointBackgroundColor: '#4fd1a5',
+        fill: true,
+        tension: 0.25,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#6c7a73', font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: '#1d2622' } },
+        y: { beginAtZero: true, ticks: { color: '#6c7a73', font: { family: 'JetBrains Mono', size: 10 }, precision: 0 }, grid: { color: '#1d2622' } },
+      }
+    }
+  });
+</script>
+</body>
+</html>

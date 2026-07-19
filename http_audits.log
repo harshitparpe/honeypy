@@ -1,2 +1,8 @@
 2026-07-18 22:45:47,200 Login attempt from 127.0.0.1
 username: admin and password: password123
+2026-07-19 13:34:06,035 Login attempt from 127.0.0.1
+username: admin and password: pass
+2026-07-19 13:34:11,986 Login attempt from 127.0.0.1
+username: admin and password: admin
+2026-07-19 13:34:20,038 Login attempt from 127.0.0.1
+username: admin and password: password

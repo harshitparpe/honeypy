@@ -1,4 +1,5 @@
-127.0.0.1 - boi:dopw
-127.0.0.1 - boi:dope
-Command b'ls' executed by 127.0.0.1
-Command b'whoami' executed by 127.0.0.1
+2026-07-19 13:26:54,116 127.0.0.1 - root:lol
+2026-07-19 13:26:57,009 Command b'ls' executed by 127.0.0.1
+2026-07-19 13:27:10,480 127.0.0.1 - admin:admin
+2026-07-19 13:27:15,304 Command b'whoami' executed by 127.0.0.1
+2026-07-19 13:27:30,157 127.0.0.1 - johndoe:amirjohnson

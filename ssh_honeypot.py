@@ -6,7 +6,7 @@ import socket
 import threading
 
 # Constants
-logging_format = logging.Formatter('%(message)s')
+logging_format = logging.Formatter('%(asctime)s %(message)s')
 SSH_BANNER = "SSH-2.0-MySSHServer_1.0"
 host_key = paramiko.RSAKey(filename='server.key')
 
